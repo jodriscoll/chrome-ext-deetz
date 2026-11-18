@@ -1,0 +1,15 @@
+node_modules/
+dist/
+test-results/
+playwright-report/
+*.zip
+*.crx
+*.pem
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+docs/STORE_LISTING.md
+docs/store/promo-*.png
+scripts/store-assets.mjs
