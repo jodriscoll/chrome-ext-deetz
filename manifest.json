@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "Deetz",
+  "short_name": "Deetz",
+  "version": "0.2.0",
+  "description": "See the CMS, frameworks, plugins and hosting behind any page, with the evidence.",
+  "homepage_url": "https://github.com/jodriscoll/chrome-ext-deetz",
+  "minimum_chrome_version": "111",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "action": {
+    "default_title": "Scan for the Deetz.",
+    "default_icon": {
+      "16": "icons/action-on-dark-16.png",
+      "32": "icons/action-on-dark-32.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+Shift+D"
+      },
+      "description": "Toggle the Deetz panel"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "chrome-ext-deetz",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Deetz: a compact Web Application Specifications panel for Chrome. Detects the CMS, frameworks, plugins, hosting and more behind any page, with evidence.",
+  "author": "Joey Driscoll (https://jodriscoll.com)",
+  "license": "MIT",
+  "homepage": "https://github.com/jodriscoll/chrome-ext-deetz#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/jodriscoll/chrome-ext-deetz.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jodriscoll/chrome-ext-deetz/issues"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "node tests/e2e.mjs",
+    "icons": "node design/render.mjs",
+    "package": "bash scripts/package.sh",
+    "check": "node --check src/background.js && node --check src/rules.js && node --check src/detect.js && node --check src/panel.js && node -e \"JSON.parse(require('fs').readFileSync('manifest.json'))\""
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
