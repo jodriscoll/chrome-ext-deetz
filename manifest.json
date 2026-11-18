@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Deetz",
   "short_name": "Deetz",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "See the CMS, frameworks, plugins and hosting behind any page, with the evidence.",
   "homepage_url": "https://github.com/jodriscoll/chrome-ext-deetz",
   "minimum_chrome_version": "111",

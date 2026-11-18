@@ -14,9 +14,9 @@
 
   const TABS = [
     { id: 'all', label: 'All', desc: 'Every technology Deetz found on this page.' },
-    { id: 'stack', label: 'Stack', cats: ['cms', 'headless', 'commerce', 'frameworks', 'libs', 'ui', 'fonts', 'build', 'packages'], desc: 'CMS, frameworks, libraries, styling, fonts, and how the code was built.' },
+    { id: 'stack', label: 'Stack', cats: ['cms', 'headless', 'commerce', 'frameworks', 'libs', 'ai', 'ui', 'fonts', 'build', 'packages'], desc: 'CMS, frameworks, libraries, styling, fonts, and how the code was built.' },
     { id: 'plugins', label: 'Plugins', cats: ['theme', 'plugins'], desc: 'Themes, CMS plugins, and extensions.' },
-    { id: 'services', label: 'Services', cats: ['analytics', 'monitoring', 'marketing', 'widgets'], desc: 'Third-party analytics, tags, monitoring, and embeds.' },
+    { id: 'services', label: 'Services', cats: ['analytics', 'monitoring', 'marketing', 'ads', 'widgets'], desc: 'Third-party analytics, tags, ads, monitoring, and embeds.' },
     { id: 'hosting', label: 'Hosting', cats: ['hosting', 'server'], desc: 'Hosting, CDN, edge network, server, and runtime.' },
     { id: 'security', label: 'Security', cats: ['privacy', 'security'], desc: 'Security headers, bot protection, CAPTCHA, auth, and consent.' },
     { id: 'page', label: 'Page', cats: ['misc'], desc: 'Network, code, API routes, metadata, and performance.' },
@@ -29,13 +29,13 @@
     cms: '#8b5cf6', headless: '#06b6d4', commerce: '#10b981', frameworks: '#3b82f6', theme: '#d946ef',
     plugins: '#0ea5e9', libs: '#6366f1', ui: '#ec4899', fonts: '#f97316', analytics: '#f59e0b',
     monitoring: '#ef4444', marketing: '#84cc16', widgets: '#14b8a6', privacy: '#22c55e', security: '#16a34a',
-    server: '#ea580c', hosting: '#f43f5e', build: '#64748b', packages: '#a1a1aa', misc: '#78716c',
+    server: '#ea580c', hosting: '#f43f5e', build: '#64748b', packages: '#a1a1aa', misc: '#78716c', ads: '#eab308', ai: '#a855f7',
   };
   const SHORT = {
     cms: 'CMS', headless: 'Content', commerce: 'Commerce', frameworks: 'Framework', theme: 'Theme', plugins: 'Plugin',
     libs: 'Library', ui: 'UI', fonts: 'Font', analytics: 'Analytics', monitoring: 'Monitoring', marketing: 'Marketing',
     widgets: 'Widget', privacy: 'Security', security: 'Header', server: 'Server', hosting: 'Hosting', build: 'Build',
-    packages: 'npm', misc: 'Meta',
+    packages: 'npm', misc: 'Meta', ads: 'Ads', ai: 'AI',
   };
 
   const state = {
@@ -303,7 +303,7 @@ svg{flex:none;display:block}
     return d.toDateString() === now.toDateString() ? time : d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ', ' + time;
   };
   const fmtClock = (t) => new Date(t).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
-  const TYPE = { url: 'URL', dom: 'DOM', html: 'HTML', meta: 'META', header: 'HEADER', cookie: 'COOKIE', js: 'JS', file: 'FILE', css: 'CSS', code: 'BUNDLE', implied: 'IMPLIED', font: 'FONT', syntax: 'SYNTAX', map: 'MAP', route: 'ROUTES' };
+  const TYPE = { url: 'URL', dom: 'DOM', html: 'HTML', meta: 'META', header: 'HEADER', cookie: 'COOKIE', js: 'JS', file: 'FILE', css: 'CSS', code: 'BUNDLE', implied: 'IMPLIED', font: 'FONT', syntax: 'SYNTAX', map: 'MAP', route: 'ROUTES', host: 'HOST' };
   const items = () => (state.result ? state.result.items : []);
   const inTab = (tab, i) => (tab.id === 'all' ? i.cat !== 'misc' : (tab.cats || []).includes(i.cat));
   const sortItems = (arr) => arr.slice().sort((a, b) => CAT_ORDER.indexOf(a.cat) - CAT_ORDER.indexOf(b.cat) || a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));

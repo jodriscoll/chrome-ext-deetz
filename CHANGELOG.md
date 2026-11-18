@@ -4,14 +4,25 @@ All notable changes to Deetz are documented here. The format follows [Keep a Cha
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-18
+
 ### Added
+- **Coverage more than doubled: 395 → 951 rules** across 20 categories. New: advertising and affiliate networks (with AdSense publisher IDs), 75+ Shopify apps by name, email-signup and marketing automation, personalization and A/B testing, reviews, support chat, search, forms, payments and buy-now-pay-later, accessibility overlays, consent APIs (IAB TCF, US Privacy, GPP, Google Consent Mode), bot protection, auth providers, error tracking, maps, media and social embeds, icon sets, UI kits, editors, charts, animation, state management, i18n, realtime and collaboration, API docs, AI/ML SDKs and client-side AI APIs, long-tail CMSs and site builders, AWS services, more servers, and site-verification tags.
+- **Any Shopify app**, named or not: scripts on a Shopify store from hosts no rule recognizes are listed as Shopify apps.
+- **Hostname detection** (`pagehost` matcher): `*.pages.dev`, `*.workers.dev`, `*.vercel.app`, `*.netlify.app`, `*.github.io`, `*.web.app`, `*.myshopify.com`, `*.lovable.app`, `*.replit.app`, `*.claude.site`, and more.
+- New **Advertising & affiliate** and **AI & ML** categories.
+- Store assets redesigned: page source in the background, a red scan beam across the frame, detection chips on the scanned lines, and headline-led screenshots.
 - Repository and store readiness: README, privacy policy, Chrome Web Store listing kit (copy, permission justifications, data-use answers, screenshots, promo tile), contributing guide, third-party notices, MIT license.
-- `npm test`: an end-to-end suite that loads the unpacked extension into Chromium and checks detections on WordPress, Next.js, Craft CMS and Expo fixture sites, plus late-load detection and the Activity log (81 checks).
+- `npm test`: an end-to-end suite that loads the unpacked extension into Chromium and checks detections on WordPress, Next.js, Craft CMS, Shopify, Expo and kitchen-sink fixture sites, plus late-load detection and the Activity log (116 checks).
 - `npm run package`: builds `dist/deetz-<version>.zip` for the Chrome Web Store with only the runtime files.
 - `npm run icons`: re-renders every icon PNG from the SVG masters in `design/`.
 
 ### Changed
 - The 128 px icon now has 16 px of transparent padding around 96 px of artwork, per Chrome Web Store guidelines.
+
+### Fixed
+- "ES modules" is now detected even when a page has very little JavaScript.
+- Search results labeled the page's HTML "/%20%20(HTML)"; it now reads "Page HTML".
 
 ## [0.2.0] - 2026-11-18
 
@@ -51,6 +62,7 @@ All notable changes to Deetz are documented here. The format follows [Keep a Cha
 - WordPress's own `?ver=` value is no longer reported as other assets' version.
 - Watch mode, rescan, copy as Markdown or JSON, per-site new/gone tracking, and a signed-in WordPress notice.
 
-[Unreleased]: https://github.com/jodriscoll/chrome-ext-deetz/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/jodriscoll/chrome-ext-deetz/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/jodriscoll/chrome-ext-deetz/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/jodriscoll/chrome-ext-deetz/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/jodriscoll/chrome-ext-deetz/releases/tag/v0.1.0

@@ -1,6 +1,6 @@
 {
   "name": "chrome-ext-deetz",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Deetz: a compact Web Application Specifications panel for Chrome. Detects the CMS, frameworks, plugins, hosting and more behind any page, with evidence.",
   "author": "Joey Driscoll (https://jodriscoll.com)",

@@ -58,17 +58,21 @@ Technology profilers like Wappalyzer list what a page loaded. Deetz also tells y
 
 ## What it detects
 
-About 400 rules, plus detectors that need no list:
+About 950 rules across 20 categories, plus detectors that need no list (any WordPress plugin or theme, any Shopify app, fonts in use, language level, source maps, security headers):
 
 - **CMS:** WordPress, Craft CMS, Drupal, Joomla, Ghost, Strapi, Payload, Directus, KeystoneJS, ApostropheCMS, Statamic, Kirby, TYPO3, AEM, Sitecore, Umbraco, Webflow, Squarespace, Wix, Framer, HubSpot CMS, and more.
-- **Plugins & themes:** every WordPress plugin and theme from its folder (including must-use plugins and Bedrock layouts), named fingerprints for 80+ popular plugins, and Craft plugins (Formie, Freeform, Blitz, SEOmatic).
+- **Plugins & themes:** every WordPress plugin and theme from its folder (including must-use plugins and Bedrock layouts), named fingerprints for 80+ popular plugins, Craft plugins (Formie, Freeform, Blitz, SEOmatic), and Shopify apps: 75+ by name, plus any other app on a Shopify store found by its script host.
 - **Content & data sources:** Supabase (with the tables a page queries), Sanity, Contentful, Storyblok, Prismic, DatoCMS, Hygraph, Firebase, Cloudinary, imgix, Mux.
 - **Frameworks:** Next.js (App Router vs Pages Router), Nuxt, Remix, React Router, Gatsby, SvelteKit, Astro, Angular, Vue, React, Preact, Svelte, Solid, Qwik, htmx, Alpine, Hotwire, Livewire, Inertia, Expo and React Native Web, Flutter Web.
 - **Libraries:** jQuery family, Lodash, GSAP, Three.js, Chart.js, D3, Swiper, Lottie, plus bundle-only finds like Zod, Redux, Zustand, TanStack Query/Table, Axios, Immer, i18next, Apollo, Socket.IO, CodeMirror.
 - **Build & language:** JavaScript language level, ES modules, Metro, webpack, Vite, Turbopack, Babel output; TypeScript and npm packages when source maps are published; static site generators.
 - **Fonts:** families actually in use with weights and source, Font Awesome, Adobe Fonts, Google Fonts.
-- **Services:** analytics (with GA4/GTM/pixel IDs), monitoring, marketing tags, chat and embeds.
-- **Hosting, server & security:** Vercel (and Vercel Functions, BotID), Netlify, Cloudflare, Fastly, Akamai, AWS, WP Engine, Kinsta, Pantheon; Nginx, Apache, LiteSpeed, Envoy, PHP, Express, Laravel, Django, Rails, ASP.NET; security headers; CAPTCHA, auth and consent tools.
+- **Services:** analytics (with GA4/GTM/pixel IDs), monitoring and error tracking, tag managers, email-signup and marketing automation, personalization and A/B testing, chat and support, reviews, search, forms, maps, media and social embeds.
+- **Advertising & affiliate:** AdSense (with publisher ID), Ad Manager, Prebid, Criteo, Taboola, Outbrain, Mediavine, Raptive, Ezoic, Amazon, Xandr, Magnite, Awin, CJ, Impact, ShareASale, Skimlinks, and more.
+- **Payments:** Stripe, PayPal, Klarna, Afterpay, Affirm, Adyen, Braintree, Mollie, Paddle, Lemon Squeezy, Razorpay, Shop Pay, Apple Pay, Google Pay.
+- **AI & ML:** client-side calls to OpenAI, Anthropic, Gemini, Mistral, Groq and Cohere; TensorFlow.js, Transformers.js, ONNX Runtime Web, MediaPipe, WebLLM; chatbots like Botpress, Voiceflow and Chatbase; sites built with Lovable, Bolt, v0, Replit and Claude artifacts.
+- **Privacy & access:** consent platforms, IAB TCF / US Privacy / GPP APIs, Google Consent Mode, accessibility overlays, bot protection (Cloudflare, DataDome, HUMAN, Imperva, Akamai), and auth (Clerk, Auth0, Okta, MSAL, Stytch, Better Auth, Sign in with Google/Apple).
+- **Hosting, server & security:** Vercel (and Vercel Functions, BotID), Netlify, Cloudflare (Pages, Workers), Fastly, Akamai, AWS (CloudFront, S3, ELB, API Gateway, Lambda, Amplify), Firebase, Railway, Deno Deploy, WP Engine, Kinsta, Pantheon; Nginx, Apache, LiteSpeed, Envoy, HAProxy, Traefik, Tomcat, Jetty, Uvicorn, PHP, Express, Laravel, Django, Flask, Rails, Spring, ASP.NET; security headers.
 
 ## Install
 
@@ -129,6 +133,9 @@ Then rules match, derived detectors run (WordPress folders, fonts, language leve
 
 Deetz only knows what reaches the browser. It **can't** see:
 
+- DNS providers, domain registrars and email-security records (DMARC, SPF). Those need server-side DNS lookups, which Deetz doesn't do so it never sends your browsing anywhere.
+- Developer-only tools such as Jest, Vitest, Playwright and Cypress. They run in development and don't ship to production pages.
+
 - Services called only from a server: email (Resend, SendGrid, Postmark), databases, payment webhooks, queues.
 - Server-side frameworks that leave no trace in HTML, headers or cookies.
 - Anything behind a login you haven't passed, or code that hasn't loaded yet (use Watch while you click around).
@@ -151,7 +158,7 @@ npm install
 npx playwright install chromium   # once, for tests and asset rendering
 
 npm run check     # syntax-check every source file and the manifest
-npm test          # end-to-end tests (81 checks across WordPress, Next.js, Craft CMS and Expo fixtures)
+npm test          # end-to-end tests (116 checks across WordPress, Next.js, Craft CMS, Shopify, Expo and a kitchen-sink fixture)
 npm run icons     # re-render icons/*.png from design/*.svg
 npm run package   # build dist/deetz-<version>.zip for the Chrome Web Store
 node scripts/store-assets.mjs   # regenerate store screenshots and promo tiles

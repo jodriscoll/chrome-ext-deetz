@@ -31,7 +31,7 @@ Deetz is a compact panel that shows what any website is built with, and why it t
 
 Click the Deetz icon (or press Alt+Shift+D) on any page. A small, draggable panel opens with everything Deetz found, sorted into tabs: Stack, Plugins, Services, Hosting, Security, Page and Activity. Open any row to see the evidence: the exact file, header, selector, cookie or code signature that matched, and where the version number came from.
 
-WHAT IT DETECTS
+WHAT IT DETECTS (950+ technologies)
 • CMSs: WordPress, Craft CMS, Drupal, Joomla, Ghost, Strapi, Payload, Directus, Webflow, Squarespace, Shopify, and more
 • Every WordPress plugin and theme, even ones no signature list knows, with versions, the theme's real name and author, and must-use plugins
 • Headless content and data sources: Supabase, Sanity, Contentful, Storyblok, Prismic, DatoCMS, Firebase, Cloudinary
@@ -40,6 +40,9 @@ WHAT IT DETECTS
 • How the code was built: JavaScript language level (ES2015 to ES2022+), ES modules, Metro, webpack, Vite or Turbopack, and TypeScript or npm packages when source maps are published
 • Fonts actually in use, with weights and whether they're self-hosted, Google Fonts or Adobe Fonts
 • Analytics, tag managers (with container IDs), marketing pixels, chat widgets and embeds
+• Ad and affiliate networks, payments and buy-now-pay-later, reviews, search, forms, consent and accessibility tools
+• Every Shopify app, named or not, and 75+ by name
+• AI: client-side calls to OpenAI, Anthropic and Gemini, in-browser ML (TensorFlow.js, Transformers.js), chatbots, and sites built with Lovable, Bolt, v0 and Replit
 • Hosting and CDN (Vercel, Netlify, Cloudflare, WP Engine, Kinsta…), server and runtime, security headers, bot protection and consent tools
 • API routes the page calls, and the services its code talks to
 

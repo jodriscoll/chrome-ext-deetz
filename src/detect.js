@@ -265,6 +265,10 @@
       }
     }
 
+    for (const m of list(rule.pagehost, 're')) {
+      if (m.re.test(location.hostname)) add({ type: 'host', value: location.hostname, weak: m.weak });
+    }
+
     for (const m of list(rule.html, 're')) {
       const r = m.re.exec(ctx.html);
       if (r) add({ type: 'html', value: snippet(r[0]), weak: m.weak }, r[1], PRIO.html);
@@ -508,7 +512,6 @@
 
   function languageLevel(ctx, found) {
     const js = ctx.code.filter((f) => f.kind === 'js' && !f.inline);
-    if (!js.length) return;
     const count = (re) => js.reduce((n, f) => n + ((f.text.match(re) || []).length), 0);
     const feats = [
       ['ES2022', 'private class fields', count(/this\.#[A-Za-z_$]/g) + count(/#[A-Za-z_$][\w$]* in /g)],
@@ -520,6 +523,8 @@
       ['ES2015', 'arrow functions', count(/=>/g)],
       ['ES2015', 'let/const', count(/\b(?:let|const)\s+[A-Za-z_${\[]/g)],
     ].filter((f) => f[2] >= 3);
+    const esm = document.querySelector('script[type="module"],link[rel="modulepreload"]');
+    if (esm) hit(found, { id: 'esm', name: 'ES modules', cat: 'build' }, { type: 'dom', value: esm.outerHTML.slice(0, 120) });
     if (!feats.length) return;
     const level = feats[0][0];
     const rule = { id: 'js-level', name: 'JavaScript', cat: 'build' };
@@ -527,8 +532,6 @@
     e.ev.push(...feats.slice(0, 5).map(([lvl, name, n]) => ({ type: 'syntax', value: `${name} (${lvl}) × ${n}` })));
     e.label = level + '+';
     feats.slice(0, 3).forEach((f) => e.tags.add(f[1]));
-    const esm = document.querySelector('script[type="module"],link[rel="modulepreload"]');
-    if (esm) hit(found, { id: 'esm', name: 'ES modules', cat: 'build' }, { type: 'dom', value: esm.outerHTML.slice(0, 120) });
   }
 
   function packagesFromMaps(maps, found) {
@@ -644,6 +647,27 @@
     };
   }
 
+  // Any script on a Shopify store from a host no rule recognized is almost always an app embed.
+  const NOT_APPS = /(?:^|\.)(?:shopify\.com|shopifycdn\.net|shopifysvc\.com|shopifycloud\.com|shopifyapps\.com|shop\.app|googletagmanager\.com|google-analytics\.com|google\.com|gstatic\.com|googleapis\.com|doubleclick\.net|facebook\.net|facebook\.com|jsdelivr\.net|unpkg\.com|cloudflare\.com|cloudflareinsights\.com|jquery\.com|bootstrapcdn\.com|fontawesome\.com|typekit\.net|youtube\.com|vimeo\.com)$/i;
+  function shopifyApps(ctx, found) {
+    if (!found.has('shopify')) return;
+    const known = new Set();
+    for (const e of found.values()) for (const ev of e.ev) { try { known.add(new URL(ev.value).hostname); } catch { /* not a URL */ } }
+    const hosts = new Map();
+    for (const u of ctx.urls) {
+      let url;
+      try { url = new URL(u); } catch { continue; }
+      if (url.origin === location.origin || !/\.m?js(?:$|\?)/.test(url.pathname + url.search.slice(0, 1))) continue;
+      const h = url.hostname.replace(/^www\./, '');
+      if (NOT_APPS.test(h) || known.has(url.hostname)) continue;
+      if (!hosts.has(h)) hosts.set(h, u);
+    }
+    for (const [h, u] of [...hosts].slice(0, 25)) {
+      const e = hit(found, { id: 'shopapp:' + h, name: h, cat: 'plugins', auto: true, note: 'Shopify app or embed, found by its script host.' }, { type: 'url', value: u });
+      e.tags.add('Shopify app');
+    }
+  }
+
   // ── provenance: who loaded this? ───────────────────────────────────────
   function provenance(found) {
     const names = new Map();
@@ -756,6 +780,7 @@
     }
     packagesFromMaps(maps, found);
     supabaseTraffic(ctx, found);
+    try { shopifyApps(ctx, found); } catch (err) { console.debug('[Deetz] shopifyApps', err); }
     const api = endpoints(ctx);
     if (api.routes.length && found.has('vercel')) {
       const e = hit(found, { id: 'vercel-functions', name: 'Vercel Functions', cat: 'hosting' }, { type: 'route', value: api.routes.map((r) => r.path).slice(0, 6).join('  ') });

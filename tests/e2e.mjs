@@ -36,6 +36,14 @@ const SITES = {
     html: FIX('craft.html'),
     headers: { 'x-powered-by': 'Craft CMS', server: 'nginx/1.25.3' },
   },
+  'shop.fixture.test': {
+    html: FIX('shopify.html'),
+    headers: { 'x-shopid': '123', 'powered-by': 'Shopify', server: 'cloudflare', 'cf-ray': 'abc' },
+  },
+  'kitchen.pages.dev': {
+    html: FIX('kitchen.html'),
+    headers: { server: 'cloudflare', 'cf-ray': 'abc' },
+  },
   'expo.test': {
     html: FIX('expo.html'),
     headers: { server: 'Vercel', 'x-vercel-id': 'iad1::v28l9', 'x-vercel-cache': 'HIT', 'strict-transport-security': 'max-age=63072000' },
@@ -61,6 +69,16 @@ const EXPECT = {
   'craft.test': {
     has: [['Craft CMS'], ['Formie'], ['Blitz'], ['Alpine.js', '3.14.1'], ['htmx', '2.0.3'], ['Nginx', '1.25.3']],
   },
+  'shop.fixture.test': {
+    has: [['Shopify'], ['Judge.me'], ['Klaviyo'], ['Recharge Subscriptions'], ['Klarna'], ['Shop Pay'], ['cdn.someunknownapp.io'], ['Cloudflare']],
+    tags: [['cdn.someunknownapp.io', 'Shopify app']],
+  },
+  'kitchen.pages.dev': {
+    has: [['Cloudflare Pages'], ['Google AdSense'], ['Tealium'], ['accessiBe'], ['Didomi'], ['IAB TCF consent API'], ['Google Consent Mode'],
+      ['Lit', '4.1.1'], ['Apache ECharts', '5.5.0'], ['Quill'], ['Swagger UI'], ['Anthropic API (client-side)'], ['TensorFlow.js'], ['Yjs'],
+      ['Google Search Console'], ['Meta domain verification'], ['ES modules']],
+    tags: [['Google AdSense', 'ca-pub-1234567890123456']],
+  },
   'expo.test': {
     has: [['Supabase', '2.119.0'], ['React', '19.2.3'], ['Expo'], ['React Native Web'], ['Reanimated'], ['expo-image'],
       ['AsyncStorage'], ['Vercel'], ['Vercel Functions'], ['Vercel BotID'], ['Metro bundler'], ['JavaScript'], ['HSTS']],
@@ -82,6 +100,7 @@ await ctx.route('**/*', (route) => {
   if (site && u.pathname === '/') return route.fulfill({ status: 200, headers: { 'content-type': 'text/html', ...site.headers }, body: site.html });
   if (/\/wp-content\/themes\/acme-theme\/style\.css/.test(u.pathname))
     return route.fulfill({ status: 200, contentType: 'text/css', body: '/*\nTheme Name: Acme Co\nAuthor: Acme Studio\nVersion: 2.4.0\n*/' });
+  if (u.hostname === 'kitchen.pages.dev' && u.pathname === '/assets/app.js') return route.fulfill({ status: 200, contentType: 'application/javascript', body: FIX('kitchen-bundle.js'), headers: { 'access-control-allow-origin': '*' } });
   if (u.pathname.includes('__common')) return route.fulfill({ status: 200, contentType: 'application/javascript', body: FIX('expo-bundle.js') });
   if (/jquery\.min\.js/.test(u.pathname)) return route.fulfill({ status: 200, contentType: 'application/javascript', body: '/*! jQuery v3.3.1 | (c) JS Foundation */' });
   const cors = { 'access-control-allow-origin': '*' };

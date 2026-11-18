@@ -13,6 +13,7 @@
  *   js:      { 'window.path': 'version.path' | true } read from the page's JS world
  *   banner:  RegExps tested against the first 4 KB of fetched JS/CSS files (license banners)
  *   bundle:  RegExps tested against the full text of the page's JavaScript bundles
+ *   pagehost: RegExps tested against the page's own hostname (e.g. *.pages.dev)
  *   custom:  name of a detector function in detect.js
  *
  * Version: first capture group of any regex, a js version path, a dom attr,
@@ -40,11 +41,13 @@
     ['theme', 'Theme'],
     ['plugins', 'Plugins'],
     ['libs', 'JavaScript libraries'],
+    ['ai', 'AI & ML'],
     ['ui', 'UI & CSS'],
     ['fonts', 'Fonts & icons'],
     ['analytics', 'Analytics'],
     ['monitoring', 'Monitoring & RUM'],
     ['marketing', 'Marketing & tags'],
+    ['ads', 'Advertising & affiliate'],
     ['widgets', 'Widgets & embeds'],
     ['privacy', 'Privacy & security'],
     ['server', 'Server & runtime'],
@@ -643,6 +646,640 @@
     { id: 'craft:blitz', name: 'Blitz', cat: 'plugins', note: 'Craft CMS plugin', html: [/Cached by Blitz/i], headers: { 'x-blitz': /./ } },
     { id: 'craft:seomatic', name: 'SEOmatic', cat: 'plugins', note: 'Craft CMS plugin', html: [/SEOmatic/] },
   );
+
+
+  // ── Coverage expansion (v0.3) ─────────────────────────────────────────
+  // Compact helpers: add(id, name, cat, matchers)
+  const add = (id, name, cat, m = {}) => RULES.push({ id, name, cat, ...m });
+  const H = (...h) => [host(...h)];
+
+  // CMS & site builders
+  add('blogger', 'Blogger', 'cms', { meta: { generator: /^Blogger/i }, src: H('blogger.com', 'blogblog.com', 'bp.blogspot.com') });
+  add('carrd', 'Carrd', 'cms', { src: H('carrd.co'), html: [weak(/carrd\.co/i)] });
+  add('duda', 'Duda', 'cms', { src: H('cdn-website.com', 'multiscreensite.com') });
+  add('jimdo', 'Jimdo', 'cms', { meta: { generator: /Jimdo/i }, src: H('jimstatic.com', 'jimdo.com', 'jimdosite.com') });
+  add('weebly', 'Weebly', 'cms', { src: H('editmysite.com', 'weebly.com'), js: { _W: true } });
+  add('webnode', 'Webnode', 'cms', { meta: { generator: /Webnode/i }, src: H('webnode.page', 'webnode.com') });
+  add('tilda', 'Tilda', 'cms', { src: H('tildacdn.com', 'tilda.ws'), js: { tildaForm: true } });
+  add('godaddy-builder', 'GoDaddy Website Builder', 'cms', { meta: { generator: /GoDaddy|Starfield Technologies/i }, src: H('wsimg.com') });
+  add('google-sites', 'Google Sites', 'cms', { pagehost: [/\.sites\.google\.com$/], src: [/gstatic\.com\/_\/atari\//] });
+  add('hashnode', 'Hashnode', 'cms', { src: H('cdn.hashnode.com'), meta: { generator: /Hashnode/i } });
+  add('medium', 'Medium', 'cms', { src: H('cdn-client.medium.com', 'miro.medium.com') });
+  add('substack', 'Substack', 'cms', { src: H('substackcdn.com', 'substack-post-media.s3.amazonaws.com'), pagehost: [/\.substack\.com$/] });
+  add('beehiiv', 'beehiiv', 'cms', { src: H('beehiiv.com') });
+  add('cargo', 'Cargo', 'cms', { src: H('cargo.site', 'cargocollective.com') });
+  add('zyro', 'Hostinger Website Builder', 'cms', { src: H('zyrosite.com', 'zyro.com') });
+  add('grav', 'Grav', 'cms', { meta: { generator: /GravCMS/i }, implies: ['php'] });
+  add('kentico', 'Kentico', 'cms', { cookies: [/^CMSPreferredCulture$/, /^CMSCsrfCookie$/], implies: ['aspnet'] });
+  add('episerver', 'Optimizely CMS (Episerver)', 'cms', { cookies: [/^EPi:/i], src: [/\/episerver\//i], implies: ['aspnet'] });
+  add('sitefinity', 'Sitefinity', 'cms', { meta: { generator: /Sitefinity/i }, src: [/Telerik\.Sitefinity|\/ResourcePackages\//], implies: ['aspnet'] });
+  add('modx', 'MODX', 'cms', { src: [weak(/\/assets\/components\//)], html: [weak(/modx/i)], implies: ['php'] });
+  add('october', 'October CMS', 'cms', { cookies: [/^october_session$/], src: [/\/modules\/system\/assets\//], implies: ['laravel'] });
+  add('opencart', 'OpenCart', 'commerce', { cookies: [/^OCSESSID$/], src: [/\/catalog\/view\/(?:theme|javascript)\//], implies: ['php'] });
+  add('oscommerce', 'osCommerce', 'commerce', { cookies: [/^osCsid$/], implies: ['php'] });
+  add('perch', 'Perch', 'cms', { src: [/\/perch\/(?:resources|core)\//], implies: ['php'] });
+  add('processwire', 'ProcessWire', 'cms', { cookies: [/^wire(?:_challenge)?$/], src: [weak(/\/site\/(?:templates|assets\/files)\//)], implies: ['php'] });
+  add('publii', 'Publii', 'build', { meta: { generator: /Publii/i } });
+  add('shopware', 'Shopware', 'commerce', { meta: { generator: /Shopware/i }, src: [/\/bundles\/storefront\//, /\/theme\/[a-f0-9]{32}\/(?:css|js)\//], implies: ['php'] });
+  add('silverstripe', 'Silverstripe', 'cms', { meta: { generator: /SilverStripe/i }, src: [/\/_resources\/(?:themes|vendor)\//], implies: ['php'] });
+  add('textpattern', 'Textpattern', 'cms', { meta: { generator: /Textpattern/i }, implies: ['php'] });
+  add('wagtail', 'Wagtail', 'cms', { src: [/\/static\/wagtail/], html: [weak(/wagtail/i)], implies: ['django'] });
+  add('webstudio', 'Webstudio', 'cms', { src: H('webstudio.is'), meta: { generator: /Webstudio/i } });
+  add('plasmic', 'Plasmic', 'cms', { bundle: [/@plasmicapp\//], dom: [weak('[class*="plasmic_"]')] });
+  add('makeswift', 'Makeswift', 'cms', { bundle: [/@makeswift\//] });
+  add('puck', 'Puck', 'cms', { bundle: [/@measured\/puck|@puckeditor\//] });
+  add('stackbit', 'Stackbit / Netlify Create', 'cms', { dom: ['[data-sb-object-id]', '[data-sb-field-path]'] });
+  add('pocketbase', 'PocketBase', 'headless', { bundle: [weak(/pocketbase/i)], src: [weak(/\/api\/collections\/[\w-]+\/records/)] });
+  add('caisy', 'Caisy', 'headless', { src: H('caisy.io') });
+  add('typedream', 'Typedream', 'cms', { src: H('typedream.com', 'typedream.app') });
+  add('super-so', 'Super', 'cms', { src: H('super.so') });
+  add('ecwid', 'Ecwid', 'commerce', { src: H('app.ecwid.com', 'ecwid.com'), js: { Ecwid: true } });
+  add('saleor', 'Saleor', 'commerce', { bundle: [weak(/saleor/i)] });
+  add('commerce-layer', 'Commerce Layer', 'commerce', { src: H('commercelayer.io') });
+  add('hydrogen', 'Shopify Hydrogen', 'frameworks', { headers: { 'powered-by': /Hydrogen/i }, bundle: [/@shopify\/hydrogen/] });
+
+  // AI-built sites
+  add('lovable', 'Lovable', 'build', { src: H('gpteng.co', 'lovable.dev'), html: [/lovable-tagger|lovable\.dev/i], pagehost: [/\.lovable\.app$/] });
+  add('bolt', 'Bolt.new', 'build', { html: [weak(/bolt\.new/i)], pagehost: [/\.bolt\.host$/] });
+  add('v0', 'v0 by Vercel', 'build', { html: [weak(/v0\.(?:dev|app)/i)], pagehost: [/\.v0\.app$|\.vusercontent\.net$/] });
+  add('replit', 'Replit', 'hosting', { pagehost: [/\.replit\.app$|\.repl\.co$|\.replit\.dev$/], src: H('replit.com') });
+  add('create-xyz', 'Create', 'build', { pagehost: [/\.created\.app$/] });
+  add('claude-artifact', 'Claude artifact', 'build', { pagehost: [/(?:^|\.)claude\.site$/] });
+  add('tldraw', 'tldraw', 'libs', { bundle: [/tldraw/] });
+
+  // Hosting, servers, edges
+  add('cf-pages', 'Cloudflare Pages', 'hosting', { pagehost: [/\.pages\.dev$/], implies: ['cloudflare'] });
+  add('cf-workers', 'Cloudflare Workers', 'hosting', { pagehost: [/\.workers\.dev$/], implies: ['cloudflare'] });
+  add('aws', 'Amazon Web Services', 'hosting', { headers: { 'x-amzn-requestid': /./, 'x-amzn-trace-id': /./, 'x-amz-request-id': /./, 'x-amz-id-2': /./ } });
+  add('aws-elb', 'AWS Elastic Load Balancing', 'hosting', { headers: { server: /awselb/i }, cookies: [/^AWSALB(?:CORS)?$/, /^AWSELB(?:CORS)?$/], implies: ['aws'] });
+  add('aws-apigw', 'Amazon API Gateway', 'hosting', { headers: { 'apigw-requestid': /./, 'x-amz-apigw-id': /./ }, implies: ['aws'] });
+  add('aws-lambda', 'AWS Lambda', 'hosting', { headers: { 'x-amzn-remapped-content-length': /./, 'x-amz-executed-version': /./ }, pagehost: [/\.lambda-url\.[\w-]+\.on\.aws$/], implies: ['aws'] });
+  add('amplify', 'AWS Amplify Hosting', 'hosting', { pagehost: [/\.amplifyapp\.com$/], implies: ['aws'] });
+  add('firebase-hosting', 'Firebase Hosting', 'hosting', { pagehost: [/\.web\.app$|\.firebaseapp\.com$/] });
+  add('railway', 'Railway', 'hosting', { pagehost: [/\.up\.railway\.app$/] });
+  add('deno-deploy', 'Deno Deploy', 'hosting', { pagehost: [/\.deno\.dev$/], headers: { server: /^deno\/?/i } });
+  add('haproxy', 'HAProxy', 'server', { headers: { server: /HAProxy/i } });
+  add('traefik', 'Traefik', 'server', { headers: { server: /Traefik/i } });
+  add('passenger', 'Phusion Passenger', 'server', { headers: { 'x-powered-by': /Phusion Passenger/i, server: /Passenger/i } });
+  add('gws', 'Google Web Server', 'server', { headers: { server: /^gws$/i } });
+  add('uvicorn', 'Uvicorn', 'server', { headers: { server: /uvicorn/i }, implies: ['python'] });
+  add('werkzeug', 'Flask (Werkzeug)', 'server', { headers: { server: /Werkzeug(?:\/([\d.]+))?/i }, implies: ['python'] });
+  add('jetty', 'Jetty', 'server', { headers: { server: /Jetty(?:\(([\d.]+))?/i }, implies: ['java'] });
+  add('tomcat', 'Apache Tomcat', 'server', { headers: { server: /Apache-Coyote/i }, implies: ['java'] });
+  add('spring', 'Spring', 'server', { headers: { 'x-application-context': /./ }, implies: ['java'] });
+  add('perl', 'Perl', 'server', { headers: { 'x-powered-by': /Perl/i, server: /mod_perl/i } });
+  add('nestjs', 'NestJS', 'server', { headers: { 'x-powered-by': /NestJS/i }, implies: ['node'] });
+  add('koa', 'Koa', 'server', { headers: { 'x-powered-by': /^koa/i }, implies: ['node'] });
+  add('hono', 'Hono', 'server', { headers: { 'x-powered-by': /Hono/i } });
+  add('stackpath', 'StackPath', 'hosting', { headers: { 'x-hw': /./, server: /StackPath/i } });
+  add('imperva', 'Imperva', 'privacy', { headers: { 'x-iinfo': /./, 'x-cdn': /Imperva|Incapsula/i }, cookies: [/^incap_ses_/, /^visid_incap_/] });
+  add('datadome', 'DataDome', 'privacy', { src: H('datadome.co'), cookies: [/^datadome$/] });
+  add('perimeterx', 'HUMAN (PerimeterX)', 'privacy', { src: H('perimeterx.net', 'px-cdn.net', 'px-cloud.net'), cookies: [/^_px[23]?$/, /^_pxvid$/] });
+  add('akamai-bm', 'Akamai Bot Manager', 'privacy', { cookies: [/^_abck$/, /^bm_sz$/, /^ak_bmsc$/], implies: ['akamai'] });
+
+  // Backend-as-a-service seen from the client
+  add('appwrite', 'Appwrite', 'headless', { src: H('appwrite.io'), bundle: [weak(/appwrite/i)] });
+  add('convex', 'Convex', 'headless', { src: H('convex.cloud'), bundle: [/convex\.cloud|ConvexReactClient/] });
+  add('nhost', 'Nhost', 'headless', { src: H('nhost.run') });
+  add('upstash', 'Upstash', 'headless', { src: H('upstash.io') });
+  add('hasura', 'Hasura', 'headless', { src: H('hasura.app') });
+  add('mongodb-realm', 'MongoDB Atlas App Services', 'headless', { src: H('realm.mongodb.com', 'services.cloud.mongodb.com') });
+  add('neon', 'Neon', 'headless', { src: H('neon.tech') });
+
+  // Analytics
+  add('mouseflow', 'Mouseflow', 'analytics', { js: { mouseflow: true }, src: H('mouseflow.com') });
+  add('pirsch', 'Pirsch', 'analytics', { src: H('pirsch.io') });
+  add('snowplow', 'Snowplow', 'analytics', { js: { GlobalSnowplowNamespace: true, snowplow: true }, bundle: [/@snowplow\//] });
+  add('countly', 'Countly', 'analytics', { js: { Countly: true } });
+  add('nielsen', 'Nielsen', 'analytics', { src: H('imrworldwide.com') });
+  add('fingerprintjs', 'Fingerprint', 'privacy', { src: H('fpjs.io', 'fpcdn.io', 'fpjscdn.net'), bundle: [/@fingerprintjs\//] });
+  add('chartbeat', 'Chartbeat', 'analytics', { src: H('static.chartbeat.com'), js: { pSUPERFLY: true } });
+  add('quantcast', 'Quantcast', 'analytics', { src: H('quantserve.com', 'quantcount.com') });
+  add('comscore', 'Comscore', 'analytics', { src: H('scorecardresearch.com') });
+  add('statcounter', 'StatCounter', 'analytics', { src: H('statcounter.com') });
+  add('yandex-metrica', 'Yandex Metrica', 'analytics', { src: H('mc.yandex.ru'), js: { ym: true } });
+  add('baidu', 'Baidu Analytics', 'analytics', { src: H('hm.baidu.com') });
+  add('june', 'June', 'analytics', { src: H('june.so') });
+  add('rudderstack', 'RudderStack', 'analytics', { js: { rudderanalytics: true }, src: H('rudderlabs.com', 'rudderstack.com') });
+
+  // Email signup forms & marketing automation (senders that only run server-side can't be seen)
+  add('mailerlite', 'MailerLite', 'marketing', { src: H('mailerlite.com', 'mlcdn.com'), js: { ml: true } });
+  add('aweber', 'AWeber', 'marketing', { src: H('aweber.com') });
+  add('getresponse', 'GetResponse', 'marketing', { src: H('getresponse.com', 'gr-cdn.com') });
+  add('constant-contact', 'Constant Contact', 'marketing', { src: H('ctctcdn.com', 'constantcontact.com') });
+  add('campaign-monitor', 'Campaign Monitor', 'marketing', { src: H('createsend.com', 'createsend1.com', 'cmail19.com') });
+  add('drip', 'Drip', 'marketing', { src: H('getdrip.com'), js: { _dcq: true } });
+  add('omnisend', 'Omnisend', 'marketing', { src: H('omnisnippet1.com', 'omnisend.com'), js: { omnisend: true } });
+  add('moosend', 'Moosend', 'marketing', { src: H('moosend.com') });
+  add('customerio', 'Customer.io', 'marketing', { src: H('customer.io'), js: { _cio: true } });
+  add('iterable', 'Iterable', 'marketing', { src: H('iterable.com') });
+  add('brevo', 'Brevo (Sendinblue)', 'marketing', { src: H('sibforms.com', 'sendinblue.com', 'brevo.com'), js: { sib: true } });
+  add('buttondown', 'Buttondown', 'marketing', { dom: ['form[action*="buttondown"]'] });
+  add('loops', 'Loops', 'marketing', { dom: ['form[action*="app.loops.so"]'], src: H('loops.so') });
+  add('beehiiv-form', 'beehiiv form', 'marketing', { dom: ['iframe[src*="embeds.beehiiv.com"]'] });
+  add('attentive', 'Attentive', 'marketing', { src: H('attn.tv', 'attentivemobile.com') });
+  add('postscript', 'Postscript', 'marketing', { src: H('postscript.io') });
+  add('northbeam', 'Northbeam', 'marketing', { src: H('northbeam.io') });
+  add('qualified', 'Qualified', 'marketing', { src: H('qualified.com') });
+  add('refersion', 'Refersion', 'marketing', { src: H('refersion.com') });
+  add('smsbump', 'SMSBump (Yotpo SMS)', 'marketing', { src: H('smsbump.com') });
+  add('triple-whale', 'Triple Whale', 'marketing', { src: H('triplewhale.com', 'triplewhale-pixel.web.app') });
+  add('tealium', 'Tealium', 'marketing', { src: H('tiqcdn.com'), js: { utag: true } });
+  add('ensighten', 'Ensighten', 'marketing', { src: H('ensighten.com') });
+  add('adobe-launch', 'Adobe Experience Platform Tags', 'marketing', { src: H('assets.adobedtm.com'), js: { _satellite: true } });
+  add('adobe-analytics', 'Adobe Analytics', 'analytics', { js: { s_c_il: true }, src: [/\/b\/ss\/[\w,]+\/\d+\//, host('omtrdc.net', '2o7.net')] });
+
+  // Forms
+  add('tally', 'Tally', 'widgets', { src: H('tally.so') });
+  add('fillout', 'Fillout', 'widgets', { src: H('fillout.com') });
+  add('formstack', 'Formstack', 'widgets', { src: H('formstack.com') });
+  add('cognito', 'Cognito Forms', 'widgets', { src: H('cognitoforms.com') });
+  add('wufoo', 'Wufoo', 'widgets', { src: H('wufoo.com') });
+  add('hubspot-forms', 'HubSpot Forms', 'widgets', { src: H('hsforms.net', 'hsforms.com') });
+  add('vee-validate', 'VeeValidate', 'libs', { bundle: [/vee-validate/] });
+  add('formik', 'Formik', 'libs', { bundle: [weak(/formik/i)] });
+
+  // Search
+  add('doofinder', 'Doofinder', 'widgets', { src: H('doofinder.com') });
+  add('lunr', 'Lunr.js', 'libs', { js: { lunr: 'lunr.version' }, bundle: [/lunr\.tokenizer|lunr\.Index/] });
+  add('meilisearch', 'Meilisearch', 'widgets', { bundle: [/meilisearch/i] });
+  add('searchspring', 'Searchspring', 'widgets', { src: H('searchspring.net', 'searchspring.io') });
+  add('swiftype', 'Swiftype', 'widgets', { src: H('swiftype.com') });
+  add('typesense', 'Typesense', 'widgets', { src: H('typesense.net'), bundle: [/typesense/i] });
+  add('pagefind', 'Pagefind', 'widgets', { src: [/\/pagefind\/pagefind(?:-ui)?\.js/] });
+  add('docsearch', 'Algolia DocSearch', 'widgets', { dom: ['.DocSearch-Button', '#docsearch'] });
+  add('elastic-search-ui', 'Elastic Search UI', 'widgets', { bundle: [/@elastic\/search-ui/] });
+
+  // Reviews
+  add('bazaarvoice', 'Bazaarvoice', 'widgets', { src: H('bazaarvoice.com') });
+  add('feefo', 'Feefo', 'widgets', { src: H('feefo.com') });
+  add('judgeme', 'Judge.me', 'widgets', { src: H('judge.me') });
+  add('loox', 'Loox', 'widgets', { src: H('loox.io') });
+  add('powerreviews', 'PowerReviews', 'widgets', { src: H('powerreviews.com') });
+  add('reviewsio', 'REVIEWS.io', 'widgets', { src: H('reviews.io', 'reviews.co.uk') });
+  add('stamped', 'Stamped', 'widgets', { src: H('stamped.io') });
+  add('yotpo', 'Yotpo', 'widgets', { src: H('yotpo.com'), js: { yotpo: true } });
+  add('okendo', 'Okendo', 'widgets', { src: H('okendo.io') });
+  add('google-reviews-badge', 'Google Customer Reviews', 'widgets', { src: [/apis\.google\.com\/js\/platform\.js\?onload=renderBadge/] });
+
+  // Customer support & chat
+  add('chatra', 'Chatra', 'widgets', { src: H('chatra.io'), js: { Chatra: true } });
+  add('chatwoot', 'Chatwoot', 'widgets', { js: { chatwootSDK: true, $chatwoot: true } });
+  add('freshchat', 'Freshchat', 'widgets', { src: H('freshchat.com'), js: { fcWidget: true } });
+  add('freshdesk', 'Freshdesk', 'widgets', { src: H('freshdesk.com', 'freshworks.com') });
+  add('genesys', 'Genesys', 'widgets', { src: H('mypurecloud.com', 'genesys.com'), js: { Genesys: true } });
+  add('liveperson', 'LivePerson', 'widgets', { src: H('liveperson.net', 'lpsnmedia.net') });
+  add('olark', 'Olark', 'widgets', { src: H('olark.com'), js: { olark: true } });
+  add('plain', 'Plain', 'widgets', { src: H('cdn-plain.com') });
+  add('smartsupp', 'Smartsupp', 'widgets', { src: H('smartsuppchat.com', 'smartsupp.com') });
+  add('userlike', 'Userlike', 'widgets', { src: H('userlike.com', 'userlike-cdn-widgets.s3-eu-west-1.amazonaws.com') });
+  add('gorgias', 'Gorgias', 'widgets', { src: H('gorgias.chat', 'gorgias.io') });
+  add('reamaze', 'Re:amaze', 'widgets', { src: H('reamaze.com', 'reamaze.io') });
+  add('front-chat', 'Front Chat', 'widgets', { src: H('frontapp.com') });
+  add('kustomer', 'Kustomer', 'widgets', { src: H('kustomerapp.com') });
+  add('botpress', 'Botpress', 'ai', { src: H('botpress.cloud') });
+  add('voiceflow', 'Voiceflow', 'ai', { src: H('voiceflow.com') });
+
+  // Media & embeds
+  add('brightcove', 'Brightcove', 'widgets', { src: H('brightcove.net', 'brightcove.com') });
+  add('dailymotion', 'Dailymotion', 'widgets', { src: H('dailymotion.com', 'dmcdn.net') });
+  add('dashjs', 'dash.js', 'libs', { js: { dashjs: 'dashjs.Version' } });
+  add('fancybox', 'Fancybox', 'libs', { js: { Fancybox: true, 'jQuery.fancybox': 'jQuery.fancybox.version' }, src: [/fancybox/i] });
+  add('jwplayer', 'JW Player', 'widgets', { js: { jwplayer: true }, src: H('jwplatform.com', 'jwpcdn.com', 'jwplayer.com') });
+  add('medium-zoom', 'medium-zoom', 'libs', { bundle: [/medium-zoom/] });
+  add('photoswipe', 'PhotoSwipe', 'libs', { js: { PhotoSwipe: true }, dom: ['.pswp'] });
+  add('revealjs', 'reveal.js', 'libs', { js: { Reveal: 'Reveal.VERSION' }, dom: ['.reveal .slides'] });
+  add('vidyard', 'Vidyard', 'widgets', { src: H('vidyard.com') });
+  add('imgur', 'Imgur', 'widgets', { src: H('imgur.com') });
+  add('baguettebox', 'baguetteBox.js', 'libs', { js: { baguetteBox: true } });
+  add('glightbox', 'GLightbox', 'libs', { js: { GLightbox: true } });
+  add('lightbox2', 'Lightbox', 'libs', { js: { lightbox: true }, src: [/lightbox2?(?:\.min)?\.js/i] });
+  add('embedly', 'Embedly', 'widgets', { src: H('embedly.com', 'embed.ly') });
+  add('spotify-embed', 'Spotify embed', 'widgets', { src: H('open.spotify.com') });
+  add('soundcloud', 'SoundCloud embed', 'widgets', { src: H('w.soundcloud.com') });
+  add('loom', 'Loom embed', 'widgets', { src: H('loom.com') });
+  add('docusign', 'DocuSign', 'widgets', { src: H('docusign.net', 'docusign.com') });
+
+  // Icons & fonts
+  add('bootstrap-icons', 'Bootstrap Icons', 'fonts', { src: [/bootstrap-icons/], dom: [weak('i.bi[class*="bi-"]')] });
+  add('feather', 'Feather Icons', 'fonts', { js: { feather: true }, dom: ['[data-feather]'] });
+  add('lucide', 'Lucide', 'fonts', { dom: ['svg.lucide', '[data-lucide]'] });
+  add('material-icons', 'Material Icons / Symbols', 'fonts', { src: [/fonts\.googleapis\.com\/css2?\?family=Material\+(?:Icons|Symbols)/], dom: ['.material-icons,.material-symbols-outlined,.material-symbols-rounded'] });
+  add('heroicons', 'Heroicons', 'fonts', { bundle: [/@heroicons\//] });
+  add('phosphor', 'Phosphor Icons', 'fonts', { src: [/@phosphor-icons/], bundle: [/@phosphor-icons\//] });
+  add('fonts-com', 'Fonts.com', 'fonts', { src: H('fast.fonts.net') });
+  add('cloud-typography', 'Cloud.typography', 'fonts', { src: H('cloud.typography.com') });
+  add('fontawesome-kit', 'Font Awesome Kit', 'fonts', { src: H('kit.fontawesome.com') });
+
+  // Frontend frameworks & libraries
+  add('lit', 'Lit', 'frameworks', { js: { litElementVersions: 'litElementVersions.0', litHtmlVersions: 'litHtmlVersions.0' } });
+  add('petite-vue', 'petite-vue', 'frameworks', { src: [/petite-vue/], bundle: [/petite-vue/] });
+  add('gridsome', 'Gridsome', 'frameworks', { meta: { generator: /Gridsome\s*v?([\d.]+)?/i }, implies: ['vue'] });
+  add('vuepress', 'VuePress', 'build', { meta: { generator: /VuePress\s*([\d.]+)?/i }, implies: ['vue'] });
+  add('nextra', 'Nextra', 'build', { bundle: [weak(/nextra/)] });
+  add('mintlify', 'Mintlify', 'build', { src: H('mintlify.com', 'mintcdn.com') });
+  add('gitbook', 'GitBook', 'cms', { src: H('gitbook.io', 'gitbook.com') });
+  add('stencil', 'Stencil', 'frameworks', { bundle: [/@stencil\/core|registerInstance\(this/] });
+  add('capacitor', 'Capacitor', 'frameworks', { js: { Capacitor: true } });
+  add('ionic', 'Ionic', 'ui', { dom: ['ion-app'], js: { Ionic: true } });
+  add('cordova', 'Apache Cordova', 'frameworks', { js: { cordova: 'cordova.version' } });
+  add('requirejs', 'RequireJS', 'build', { js: { requirejs: 'requirejs.version' } });
+  add('systemjs', 'SystemJS', 'build', { js: { 'System.register': true }, src: [/system(?:\.min)?\.js/] });
+  add('es-module-shims', 'ES Module Shims', 'build', { src: [/es-module-shims/] });
+  add('importmap', 'Import maps', 'build', { dom: ['script[type="importmap"]'] });
+  add('yui', 'YUI', 'libs', { js: { YUI: true } });
+  add('prototype', 'Prototype', 'libs', { js: { Prototype: 'Prototype.Version' } });
+  add('mootools', 'MooTools', 'libs', { js: { MooTools: 'MooTools.version' } });
+  add('dojo', 'Dojo', 'libs', { js: { dojo: 'dojo.version' } });
+  add('knockout', 'Knockout', 'frameworks', { js: { ko: 'ko.version' } });
+  add('mithril', 'Mithril', 'frameworks', { js: { 'm.redraw': true, 'm.route': true } });
+  add('marko', 'Marko', 'frameworks', { js: { $MC: true }, bundle: [/@marko\//] });
+  add('partytown', 'Partytown', 'build', { dom: ['script[type="text/partytown"]'], src: [/~partytown\//] });
+  add('web-vitals', 'web-vitals', 'monitoring', { bundle: [/web-vitals/] });
+  add('million', 'Million.js', 'libs', { bundle: [weak(/million\/react|__MILLION/)] });
+  add('storybook', 'Storybook', 'build', { dom: ['#storybook-root', '#storybook-docs'], js: { __STORYBOOK_ADDONS_CHANNEL__: true } });
+
+  // UI component kits & CSS
+  add('ag-grid', 'AG Grid', 'ui', { dom: ['.ag-root-wrapper', '.ag-root'], js: { agGrid: true } });
+  add('datatables', 'DataTables', 'ui', { js: { 'jQuery.fn.dataTable': 'jQuery.fn.dataTable.version', DataTable: 'DataTable.version' }, dom: ['.dataTables_wrapper,.dt-container'] });
+  add('flowbite', 'Flowbite', 'ui', { src: [/flowbite/], bundle: [weak(/flowbite/)] });
+  add('handsontable', 'Handsontable', 'ui', { js: { Handsontable: 'Handsontable.version' }, dom: ['.handsontable'] });
+  add('mantine', 'Mantine', 'ui', { dom: ['[class*="mantine-"]', 'style[data-mantine-styles]'] });
+  add('notyf', 'Notyf', 'ui', { js: { Notyf: true } });
+  add('noty', 'Noty', 'ui', { js: { Noty: true } });
+  add('primefaces', 'PrimeFaces', 'ui', { js: { PrimeFaces: true }, implies: ['java'] });
+  add('primevue', 'PrimeVue / PrimeNG / PrimeReact', 'ui', { dom: [weak('.p-component')] });
+  add('react-toastify', 'React-Toastify', 'ui', { dom: ['.Toastify'] });
+  add('sonner', 'Sonner', 'ui', { dom: ['[data-sonner-toaster]', 'section[aria-label^="Notifications"] ol[data-sonner-toaster]'] });
+  add('react-hot-toast', 'react-hot-toast', 'ui', { bundle: [/react-hot-toast/] });
+  add('shadcn', 'shadcn/ui', 'ui', { dom: [weak('[data-slot="button"],[data-slot="card"],[data-slot="dialog-content"],[data-slot="badge"]')] });
+  add('shoelace', 'Shoelace / Web Awesome', 'ui', { dom: ['sl-button,sl-dialog,sl-input,sl-icon,wa-button,wa-icon'] });
+  add('sweetalert', 'SweetAlert2', 'ui', { js: { Swal: 'Swal.version', swal: true } });
+  add('tabulator', 'Tabulator', 'ui', { js: { Tabulator: true }, dom: ['.tabulator'] });
+  add('toastr', 'toastr', 'ui', { js: { toastr: 'toastr.version' } });
+  add('semantic-ui', 'Semantic UI / Fomantic', 'ui', { dom: ['.ui.button,.ui.segment,.ui.menu'] });
+  add('daisyui', 'daisyUI', 'ui', { banner: [/daisyUI/i], html: [weak(/daisyui/i)] });
+  add('open-props', 'Open Props', 'ui', { banner: [/open-props/i] });
+  add('pico', 'Pico CSS', 'ui', { banner: [/Pico CSS/i] });
+  add('vuetify', 'Vuetify', 'ui', { dom: ['.v-application'], js: { Vuetify: true } });
+  add('quasar', 'Quasar', 'ui', { dom: ['.q-layout,.q-btn'], js: { Quasar: true } });
+  add('element-plus', 'Element Plus / Element UI', 'ui', { dom: ['[class*="el-button"]'] });
+  add('nextui', 'HeroUI (NextUI)', 'ui', { dom: [weak('[class*="heroui"],[class*="nextui"]')] });
+  add('tw-typography', 'Tailwind Typography', 'ui', { html: [/--tw-prose-/] });
+
+  // Utilities, data, editors, charts, animation, state
+  add('luxon', 'Luxon', 'libs', { js: { luxon: 'luxon.VERSION' }, bundle: [/Invalid DateTime/] });
+  add('date-fns', 'date-fns', 'libs', { bundle: [weak(/date-fns/)] });
+  add('highlightjs', 'highlight.js', 'libs', { js: { hljs: 'hljs.versionString' }, dom: ['code.hljs'] });
+  add('prism', 'Prism', 'libs', { js: { Prism: true }, dom: [weak('code[class*="language-"] .token')] });
+  add('mermaid', 'Mermaid', 'libs', { js: { mermaid: true }, dom: ['.mermaid svg', 'pre.mermaid'] });
+  add('pdfjs', 'PDF.js', 'libs', { js: { pdfjsLib: 'pdfjsLib.version' }, src: [/pdf(?:\.min)?\.m?js|pdf\.worker/] });
+  add('jspdf', 'jsPDF', 'libs', { js: { jspdf: true, jsPDF: true } });
+  add('numeral', 'Numeral.js', 'libs', { js: { numeral: 'numeral.version' } });
+  add('bluebird', 'Bluebird', 'libs', { bundle: [weak(/bluebird/i)] });
+  add('bowser', 'Bowser', 'libs', { bundle: [weak(/bowser/)] });
+  add('chroma', 'chroma.js', 'libs', { js: { chroma: 'chroma.version' } });
+  add('cleave', 'Cleave.js', 'libs', { js: { Cleave: true } });
+  add('hammer', 'Hammer.js', 'libs', { js: { Hammer: 'Hammer.VERSION' } });
+  add('imask', 'IMask', 'libs', { js: { IMask: true } });
+  add('uaparser', 'UAParser.js', 'libs', { js: { UAParser: 'UAParser.VERSION' } });
+  add('zxcvbn', 'zxcvbn', 'libs', { js: { zxcvbn: true } });
+  add('accounting', 'accounting.js', 'libs', { js: { accounting: 'accounting.version' } });
+  add('currency', 'currency.js', 'libs', { js: { currency: true } });
+  add('tinycolor', 'TinyColor', 'libs', { js: { tinycolor: true } });
+  add('vueuse', 'VueUse', 'libs', { bundle: [/@vueuse\//] });
+  add('valibot', 'Valibot', 'libs', { bundle: [/ValiError/] });
+  add('ajv', 'Ajv', 'libs', { bundle: [weak(/schemasafe|ajv-formats|\bajv\b/)] });
+  add('dexie', 'Dexie.js', 'libs', { js: { Dexie: 'Dexie.version' }, bundle: [/Dexie/] });
+  add('rxdb', 'RxDB', 'libs', { bundle: [weak(/rxdb/i)] });
+  add('floating-ui', 'Floating UI', 'libs', { bundle: [/floating-ui/] });
+  add('sortablejs', 'SortableJS', 'libs', { js: { Sortable: 'Sortable.version' } });
+  add('dnd-kit', 'dnd kit', 'libs', { bundle: [/@dnd-kit\//] });
+  add('fabric', 'Fabric.js', 'libs', { js: { fabric: 'fabric.version' } });
+  add('konva', 'Konva', 'libs', { js: { Konva: 'Konva.version' } });
+  add('pixi', 'PixiJS', 'libs', { js: { PIXI: 'PIXI.VERSION' } });
+  add('babylon', 'Babylon.js', 'libs', { js: { BABYLON: 'BABYLON.Engine.Version' } });
+  add('p5', 'p5.js', 'libs', { js: { p5: 'p5.VERSION' } });
+  add('matter', 'Matter.js', 'libs', { js: { Matter: 'Matter.version' } });
+  add('anime', 'Anime.js', 'libs', { js: { anime: 'anime.version' } });
+  add('velocity', 'Velocity.js', 'libs', { js: { Velocity: true, 'jQuery.Velocity': true } });
+  add('react-spring', 'React Spring', 'libs', { bundle: [weak(/react-spring|@react-spring\//)] });
+  add('motion-one', 'Motion', 'libs', { bundle: [weak(/motion\.dev|motion-dom/)] });
+  add('echarts', 'Apache ECharts', 'libs', { js: { echarts: 'echarts.version' }, dom: ['[_echarts_instance_]'] });
+  add('recharts', 'Recharts', 'libs', { dom: ['.recharts-wrapper'] });
+  add('nivo', 'Nivo', 'libs', { bundle: [/@nivo\//] });
+  add('victory', 'Victory', 'libs', { bundle: [weak(/victory-core|VictoryChart/)] });
+  add('observable-plot', 'Observable Plot', 'libs', { bundle: [/@observablehq\/plot/] });
+  add('vis', 'vis.js', 'libs', { js: { vis: true } });
+  add('ckeditor', 'CKEditor', 'libs', { js: { CKEDITOR: 'CKEDITOR.version', CKEDITOR_VERSION: 'CKEDITOR_VERSION' }, dom: ['.ck-editor', '.cke'] });
+  add('quill', 'Quill', 'libs', { js: { Quill: true }, dom: ['.ql-editor'] });
+  add('prosemirror', 'ProseMirror', 'libs', { dom: ['.ProseMirror'] });
+  add('tiptap', 'Tiptap', 'libs', { dom: ['.tiptap'], bundle: [/@tiptap\//] });
+  add('lexical', 'Lexical', 'libs', { dom: ['[data-lexical-editor]'] });
+  add('milkdown', 'Milkdown', 'libs', { dom: ['.milkdown'] });
+  add('markdown-it', 'markdown-it', 'libs', { js: { markdownit: true }, bundle: [/markdown-it/] });
+  add('marked', 'Marked', 'libs', { js: { marked: true } });
+  add('mobx', 'MobX', 'libs', { js: { __mobxGlobals: true, __mobxInstanceCount: true }, bundle: [/\[MobX\]/] });
+  add('pinia', 'Pinia', 'libs', { bundle: [weak(/pinia/)] });
+  add('recoil', 'Recoil', 'libs', { bundle: [weak(/RecoilRoot|recoil/)] });
+  add('redux-saga', 'Redux-Saga', 'libs', { bundle: [/@@redux-saga/] });
+  add('xstate', 'XState', 'libs', { bundle: [weak(/xstate/)] });
+  add('jotai', 'Jotai', 'libs', { bundle: [weak(/jotai/)] });
+  add('valtio', 'Valtio', 'libs', { bundle: [weak(/valtio/)] });
+  add('effector', 'Effector', 'libs', { bundle: [weak(/effector/)] });
+  add('nanostores', 'Nano Stores', 'libs', { bundle: [weak(/nanostores/)] });
+  add('swr', 'SWR', 'libs', { bundle: [/\$swr\$|swr\/infinite/] });
+  add('tanstack-router', 'TanStack Router', 'libs', { bundle: [/@tanstack\/(?:react-)?router|tsr-scroll-restoration/] });
+  add('trpc', 'tRPC', 'libs', { bundle: [/@trpc\//], src: [/\/(?:api\/)?trpc\//] });
+  add('signalr', 'SignalR', 'libs', { js: { signalR: true }, bundle: [/signalr/i] });
+  add('superagent', 'SuperAgent', 'libs', { bundle: [weak(/superagent/)] });
+  add('ably', 'Ably', 'libs', { js: { Ably: true }, src: H('ably.io', 'ably-realtime.com', 'ably.com') });
+  add('liveblocks', 'Liveblocks', 'libs', { src: H('liveblocks.io') });
+  add('partykit', 'PartyKit', 'libs', { src: H('partykit.dev') });
+  add('yjs', 'Yjs', 'libs', { bundle: [/Yjs was already imported/] });
+  add('automerge', 'Automerge', 'libs', { bundle: [weak(/automerge/i)] });
+  add('formatjs', 'FormatJS (React Intl)', 'libs', { bundle: [/@formatjs\/|react-intl/] });
+  add('next-i18next', 'next-i18next', 'libs', { bundle: [/next-i18next/] });
+  add('vue-i18n', 'Vue I18n', 'libs', { bundle: [/vue-i18n/] });
+  add('relay', 'Relay', 'libs', { bundle: [/relay-runtime|RelayModernEnvironment/] });
+
+  // API docs & dev tools
+  add('swagger-ui', 'Swagger UI', 'build', { js: { SwaggerUIBundle: true }, dom: ['.swagger-ui'] });
+  add('redoc', 'Redoc', 'build', { dom: ['redoc', '.redoc-wrap'], js: { Redoc: true } });
+  add('graphiql', 'GraphiQL', 'build', { dom: ['.graphiql-container'] });
+  add('stoplight', 'Stoplight Elements', 'build', { dom: ['elements-api'] });
+  add('scalar', 'Scalar API Reference', 'build', { dom: ['[class*="scalar-app"]', '#api-reference'] });
+
+  // Payments
+  add('klarna', 'Klarna', 'commerce', { src: H('klarna.com', 'klarnaservices.com', 'klarnacdn.net') });
+  add('afterpay', 'Afterpay / Clearpay', 'commerce', { src: H('afterpay.com', 'clearpay.co.uk', 'portal.afterpay.com') });
+  add('affirm', 'Affirm', 'commerce', { src: H('affirm.com'), js: { affirm: true } });
+  add('sezzle', 'Sezzle', 'commerce', { src: H('sezzle.com') });
+  add('adyen', 'Adyen', 'commerce', { src: H('adyen.com'), js: { AdyenCheckout: true } });
+  add('braintree', 'Braintree', 'commerce', { src: H('braintreegateway.com', 'braintree-api.com'), js: { braintree: true } });
+  add('mollie', 'Mollie', 'commerce', { src: H('js.mollie.com'), js: { Mollie: true } });
+  add('paddle', 'Paddle', 'commerce', { src: H('paddle.com'), js: { Paddle: true } });
+  add('lemonsqueezy', 'Lemon Squeezy', 'commerce', { src: H('lemonsqueezy.com', 'lmsqueezy.com'), js: { LemonSqueezy: true } });
+  add('polar', 'Polar', 'commerce', { src: H('polar.sh') });
+  add('razorpay', 'Razorpay', 'commerce', { src: H('razorpay.com'), js: { Razorpay: true } });
+  add('checkoutcom', 'Checkout.com', 'commerce', { src: H('checkout.com'), js: { Frames: true } });
+  add('shop-pay', 'Shop Pay', 'commerce', { dom: ['shop-pay-wallet-button,shopify-payment-terms,[data-shopify="payment-button"]'] });
+  add('apple-pay', 'Apple Pay', 'commerce', { dom: ['apple-pay-button', '.apple-pay-button'], src: [/applepay\.cdn-apple\.com/] });
+  add('google-pay', 'Google Pay', 'commerce', { src: [/pay\.google\.com\/gp\/p\/js/] });
+  add('gumroad', 'Gumroad', 'commerce', { src: H('gumroad.com') });
+  add('aftership', 'AfterShip', 'commerce', { src: H('aftership.com') });
+  add('route', 'Route', 'commerce', { src: H('routeapp.io') });
+  add('rebuy', 'Rebuy', 'commerce', { src: H('rebuyengine.com') });
+  add('nosto', 'Nosto', 'commerce', { src: H('nosto.com') });
+
+  // Personalization & experimentation
+  add('dynamic-yield', 'Dynamic Yield', 'marketing', { src: H('dynamicyield.com'), js: { DY: true } });
+  add('evergage', 'Salesforce Personalization (Evergage)', 'marketing', { src: H('evergage.com', 'evgnet.com') });
+  add('monetate', 'Monetate', 'marketing', { src: H('monetate.net') });
+  add('mutiny', 'Mutiny', 'marketing', { src: H('mutinycdn.com', 'mutinyhq.io', 'mutinyhq.com') });
+  add('qubit', 'Qubit', 'marketing', { src: H('qubit.com', 'goqubit.com') });
+  add('intellimize', 'Intellimize', 'marketing', { src: H('intellimize.co') });
+  add('barilliance', 'Barilliance', 'marketing', { src: H('barilliance.net') });
+  add('abtasty', 'AB Tasty', 'marketing', { src: H('abtasty.com'), js: { ABTasty: true } });
+  add('launchdarkly', 'LaunchDarkly', 'marketing', { src: H('launchdarkly.com'), bundle: [/launchdarkly/i] });
+  add('statsig', 'Statsig', 'marketing', { src: H('statsig.com', 'statsigapi.net') });
+  add('growthbook', 'GrowthBook', 'marketing', { src: H('growthbook.io'), bundle: [/growthbook/i] });
+  add('convert', 'Convert Experiences', 'marketing', { src: H('convertexperiments.com') });
+  add('kameleoon', 'Kameleoon', 'marketing', { src: H('kameleoon.eu', 'kameleoon.io') });
+
+  // Accessibility overlays
+  add('accessibe', 'accessiBe', 'widgets', { src: H('acsbapp.com', 'accessibe.com') });
+  add('audioeye', 'AudioEye', 'widgets', { src: H('audioeye.com') });
+  add('equalweb', 'EqualWeb', 'widgets', { src: H('equalweb.com') });
+  add('userway', 'UserWay', 'widgets', { src: H('userway.org') });
+  add('recite', 'Recite Me', 'widgets', { src: H('reciteme.com') });
+
+  // Consent & privacy signals
+  add('didomi', 'Didomi', 'privacy', { src: H('privacy-center.org', 'didomi.io'), js: { Didomi: true } });
+  add('trustarc', 'TrustArc', 'privacy', { src: H('trustarc.com', 'truste.com') });
+  add('cookiepro', 'CookiePro', 'privacy', { src: H('cookiepro.com') });
+  add('finsweet-cc', 'Finsweet Cookie Consent', 'privacy', { src: [/@finsweet\/cookie-consent/], dom: ['[fs-cc]'] });
+  add('consentmo', 'Consentmo', 'privacy', { src: H('consentmo.com') });
+  add('pandectes', 'Pandectes', 'privacy', { src: H('pandectes.io') });
+  add('cookieconsent', 'Cookie Consent (Osano / orestbida)', 'privacy', { js: { cookieconsent: true, CookieConsent: true }, dom: ['.cc-window', '#cc-main'] });
+  add('cookie-script', 'Cookie-Script', 'privacy', { src: H('cookie-script.com') });
+  add('quantcast-choice', 'Quantcast Choice', 'privacy', { src: H('quantcast.mgr.consensu.org'), js: { __qc: true } });
+  add('iab-tcf', 'IAB TCF consent API', 'privacy', { js: { __tcfapi: true } });
+  add('us-privacy', 'US Privacy API (CCPA)', 'privacy', { js: { __uspapi: true } });
+  add('gpp', 'IAB Global Privacy Platform', 'privacy', { js: { __gpp: true } });
+  add('google-consent-mode', 'Google Consent Mode', 'privacy', { html: [/gtag\(\s*['"]consent['"]\s*,\s*['"]default['"]/] });
+
+  // Advertising
+  add('adsense', 'Google AdSense', 'ads', { src: [/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle/], dom: ['ins.adsbygoogle'], ids: [/\bca-pub-\d{10,20}\b/g] });
+  add('gam', 'Google Ad Manager', 'ads', { src: [/securepubads\.g\.doubleclick\.net\/tag\/js\/gpt\.js/], js: { googletag: true } });
+  add('prebid', 'Prebid.js', 'ads', { js: { pbjs: 'pbjs.version' } });
+  add('adroll', 'AdRoll', 'ads', { src: H('adroll.com'), js: { adroll_adv_id: true } });
+  add('raptive', 'Raptive (AdThrive)', 'ads', { src: H('adthrive.com', 'raptive.com') });
+  add('amazon-ads', 'Amazon Advertising', 'ads', { src: H('amazon-adsystem.com') });
+  add('xandr', 'Xandr (AppNexus)', 'ads', { src: H('adnxs.com') });
+  add('criteo', 'Criteo', 'ads', { src: H('criteo.com', 'criteo.net') });
+  add('ezoic', 'Ezoic', 'ads', { src: H('ezoic.net', 'ezojs.com', 'ezodn.com') });
+  add('index-exchange', 'Index Exchange', 'ads', { src: H('casalemedia.com', 'indexww.com') });
+  add('infolinks', 'Infolinks', 'ads', { src: H('infolinks.com') });
+  add('medianet', 'Media.net', 'ads', { src: H('media.net') });
+  add('mediavine', 'Mediavine', 'ads', { src: H('mediavine.com') });
+  add('mgid', 'MGID', 'ads', { src: H('mgid.com') });
+  add('mntn', 'MNTN', 'ads', { src: H('mountain.com', 'steelhousemedia.com') });
+  add('openx', 'OpenX', 'ads', { src: H('openx.net') });
+  add('outbrain', 'Outbrain', 'ads', { src: H('outbrain.com'), js: { obApi: true } });
+  add('pubmatic', 'PubMatic', 'ads', { src: H('pubmatic.com') });
+  add('revcontent', 'Revcontent', 'ads', { src: H('revcontent.com') });
+  add('magnite', 'Magnite (Rubicon Project)', 'ads', { src: H('rubiconproject.com') });
+  add('skimlinks', 'Skimlinks', 'ads', { src: H('skimresources.com', 'skimlinks.com') });
+  add('snap-pixel', 'Snap Pixel', 'ads', { src: H('sc-static.net'), js: { snaptr: true } });
+  add('sovrn', 'Sovrn', 'ads', { src: H('lijit.com', 'sovrn.com') });
+  add('taboola', 'Taboola', 'ads', { src: H('taboola.com'), js: { _taboola: true } });
+  add('viglink', 'VigLink', 'ads', { src: H('viglink.com') });
+  add('carbon-ads', 'Carbon Ads', 'ads', { src: H('carbonads.com', 'carbonads.net') });
+  add('ethicalads', 'EthicalAds', 'ads', { src: H('ethicalads.io') });
+  add('quora-pixel', 'Quora Pixel', 'ads', { src: H('q.quora.com'), js: { qp: true } });
+  add('awin', 'Awin', 'ads', { src: H('awin1.com', 'dwin1.com', 'zenaps.com') });
+  add('cj', 'CJ Affiliate', 'ads', { src: H('emjcd.com', 'cj.com', 'qksrv.net') });
+  add('impact', 'impact.com', 'ads', { src: H('impactcdn.com', 'impact.com') });
+  add('pepperjam', 'Pepperjam (Partnerize)', 'ads', { src: H('pepperjam.com', 'pntrac.com') });
+  add('rakuten', 'Rakuten Advertising', 'ads', { src: H('linksynergy.com') });
+  add('shareasale', 'ShareASale', 'ads', { src: H('shareasale.com', 'shareasale-analytics.com') });
+  add('partnerstack', 'PartnerStack', 'ads', { src: H('partnerstack.com', 'grsm.io') });
+
+  // Social & sharing
+  add('addtoany', 'AddToAny', 'widgets', { src: H('addtoany.com') });
+  add('facebook-sdk', 'Facebook SDK', 'widgets', { src: [/connect\.facebook\.net\/[^/]+\/(?:sdk|all)\.js/], js: { FB: true } });
+  add('instagram-embed', 'Instagram embed', 'widgets', { src: [/instagram\.com\/embed\.js/], dom: ['blockquote.instagram-media'] });
+  add('linkedin-widget', 'LinkedIn widgets', 'widgets', { src: H('platform.linkedin.com') });
+  add('pinterest-widget', 'Pinterest widgets', 'widgets', { src: [/assets\.pinterest\.com\/js\/pinit/] });
+  add('twitter-widget', 'X (Twitter) widgets', 'widgets', { src: H('platform.twitter.com'), dom: ['blockquote.twitter-tweet'] });
+  add('tiktok-embed', 'TikTok embed', 'widgets', { src: [/tiktok\.com\/embed\.js/], dom: ['blockquote.tiktok-embed'] });
+  add('discord-widget', 'Discord widget', 'widgets', { dom: ['iframe[src*="discord.com/widget"]'] });
+  add('giscus', 'giscus', 'widgets', { src: H('giscus.app') });
+  add('utterances', 'utterances', 'widgets', { src: H('utteranc.es') });
+
+  // Auth
+  add('okta', 'Okta', 'privacy', { src: H('okta.com', 'oktacdn.com'), bundle: [/@okta\/okta-auth-js/] });
+  add('msal', 'Microsoft Authentication Library', 'privacy', { bundle: [/msal-browser|@azure\/msal/] });
+  add('kinde', 'Kinde', 'privacy', { bundle: [/@kinde-oss\//], src: H('kinde.com') });
+  add('workos', 'WorkOS', 'privacy', { bundle: [/@workos-inc\//] });
+  add('better-auth', 'Better Auth', 'privacy', { bundle: [/better-auth/], src: [/\/api\/auth\/get-session/] });
+  add('stytch', 'Stytch', 'privacy', { src: H('stytch.com'), bundle: [/@stytch\//] });
+  add('magic-link', 'Magic', 'privacy', { src: H('magic.link') });
+  add('google-signin', 'Sign in with Google', 'privacy', { src: [/accounts\.google\.com\/gsi\/client/], dom: ['#g_id_onload'] });
+  add('apple-signin', 'Sign in with Apple', 'privacy', { src: [/appleid\.cdn-apple\.com\/appleauth/] });
+
+  // Monitoring & errors
+  add('rollbar', 'Rollbar', 'monitoring', { js: { Rollbar: true, _rollbarConfig: true }, src: H('rollbar.com') });
+  add('raygun', 'Raygun', 'monitoring', { js: { rg4js: true }, src: H('raygun.io', 'raygun.com') });
+  add('highlight', 'Highlight', 'monitoring', { src: H('highlight.io', 'highlight.run'), bundle: [/highlight\.run/] });
+  add('axiom', 'Axiom', 'monitoring', { src: H('axiom.co') });
+  add('dynatrace', 'Dynatrace', 'monitoring', { js: { dtrum: true }, cookies: [/^dtCookie$/, /^rxVisitor$/] });
+  add('elastic-apm', 'Elastic APM', 'monitoring', { js: { elasticApm: true }, bundle: [/@elastic\/apm-rum/] });
+  add('raven', 'Raven.js (legacy Sentry)', 'monitoring', { js: { Raven: 'Raven.VERSION' } });
+  add('trackjs', 'TrackJS', 'monitoring', { js: { TrackJS: true }, src: H('trackjs.com') });
+  add('appsignal', 'AppSignal', 'monitoring', { bundle: [/@appsignal\//] });
+  add('openreplay', 'OpenReplay', 'monitoring', { src: H('openreplay.com') });
+
+  // Maps & location
+  add('here-maps', 'HERE Maps', 'widgets', { src: H('js.api.here.com') });
+  add('maplibre', 'MapLibre GL', 'widgets', { js: { maplibregl: 'maplibregl.version' }, dom: ['.maplibregl-map'] });
+  add('openlayers', 'OpenLayers', 'widgets', { dom: ['.ol-viewport'], js: { 'ol.Map': true } });
+  add('geojs', 'GeoJS', 'widgets', { src: H('geojs.io') });
+  add('apple-mapkit', 'Apple MapKit JS', 'widgets', { src: H('cdn.apple-mapkit.com'), js: { mapkit: true } });
+  add('ipapi', 'IP geolocation API', 'widgets', { src: H('ipapi.co', 'ipinfo.io', 'ip-api.com', 'ipgeolocation.io') });
+
+  // AI / ML in the browser and client-side AI APIs
+  add('anthropic', 'Anthropic API (client-side)', 'ai', { bundle: [/api\.anthropic\.com/] });
+  add('gemini', 'Google Gemini API (client-side)', 'ai', { bundle: [/generativelanguage\.googleapis\.com/] });
+  add('groq', 'Groq API (client-side)', 'ai', { bundle: [/api\.groq\.com/] });
+  add('mistral', 'Mistral API (client-side)', 'ai', { bundle: [/api\.mistral\.ai/] });
+  add('cohere', 'Cohere API (client-side)', 'ai', { bundle: [/api\.cohere\.(?:ai|com)/] });
+  add('elevenlabs', 'ElevenLabs', 'ai', { src: H('elevenlabs.io'), bundle: [/elevenlabs/i] });
+  add('helicone', 'Helicone', 'ai', { bundle: [/helicone\.ai/] });
+  add('langchain', 'LangChain', 'ai', { bundle: [weak(/langchain/i)] });
+  add('tfjs', 'TensorFlow.js', 'ai', { js: { tf: 'tf.version.tfjs' }, bundle: [/@tensorflow\/tfjs/] });
+  add('transformersjs', 'Transformers.js', 'ai', { bundle: [/@xenova\/transformers|@huggingface\/transformers/] });
+  add('onnx', 'ONNX Runtime Web', 'ai', { js: { ort: true }, bundle: [/onnxruntime-web/] });
+  add('mediapipe', 'MediaPipe', 'ai', { bundle: [/@mediapipe\//], src: [/@mediapipe\//] });
+  add('opencvjs', 'OpenCV.js', 'ai', { src: [/opencv(?:\.min)?\.js/], js: { 'cv.Mat': true } });
+  add('ml5', 'ml5.js', 'ai', { js: { ml5: 'ml5.version' } });
+  add('brainjs', 'Brain.js', 'ai', { js: { brain: true } });
+  add('faceapi', 'face-api.js', 'ai', { js: { faceapi: true } });
+  add('webllm', 'WebLLM', 'ai', { bundle: [/@mlc-ai\/web-llm/] });
+  add('vapi', 'Vapi', 'ai', { src: H('vapi.ai'), bundle: [/@vapi-ai\//] });
+  add('chatbase', 'Chatbase', 'ai', { src: H('chatbase.co') });
+  add('deepar', 'DeepAR', 'ai', { src: H('deepar.ai'), bundle: [weak(/deepar/i)] });
+
+  // Site verification & SEO tools (meta tags)
+  add('gsc', 'Google Search Console', 'misc', { meta: { 'google-site-verification': /./ } });
+  add('bing-wmt', 'Bing Webmaster Tools', 'misc', { meta: { 'msvalidate.01': /./ } });
+  add('yandex-wmt', 'Yandex Webmaster', 'misc', { meta: { 'yandex-verification': /./ } });
+  add('ahrefs', 'Ahrefs', 'misc', { meta: { 'ahrefs-site-verification': /./ }, src: H('analytics.ahrefs.com') });
+  add('semrush', 'Semrush', 'misc', { meta: { 'semrush-site-verification': /./ } });
+  add('pinterest-verify', 'Pinterest domain verification', 'misc', { meta: { 'p:domain_verify': /./ } });
+  add('facebook-verify', 'Meta domain verification', 'misc', { meta: { 'facebook-domain-verification': /./ } });
+  add('apple-web-app', 'iOS web app capable', 'misc', { meta: { 'apple-mobile-web-app-capable': /yes/i } });
+  add('theme-color', 'Theme color', 'misc', { meta: { 'theme-color': /./ } });
+  add('robots-meta', 'Robots meta', 'misc', { meta: { robots: /./ } });
+  add('canonical', 'Canonical URL', 'misc', { dom: ['link[rel="canonical"]'] });
+  add('opensearch', 'OpenSearch', 'misc', { dom: ['link[rel="search"][type="application/opensearchdescription+xml"]'] });
+  add('speculation-rules', 'Speculation Rules', 'misc', { dom: ['script[type="speculationrules"]'] });
+  add('view-transitions', 'View Transitions', 'misc', { dom: ['meta[name="view-transition"]'], html: [weak(/@view-transition/)] });
+
+  // ── Shopify apps: named fingerprints for the common ones; anything else is found by host ──
+  const shopifyApp = (id, name, ...hosts) => RULES.push({ id: 'shop:' + id, name, cat: 'plugins', note: 'Shopify app', src: [host(...hosts)] });
+  shopifyApp('recharge', 'Recharge Subscriptions', 'rechargeapps.com', 'rechargecdn.com');
+  shopifyApp('smile', 'Smile: Loyalty & Rewards', 'smile.io', 'sweettooth.io');
+  shopifyApp('privy', 'Privy', 'privy.com', 'privymktg.com');
+  shopifyApp('pagefly', 'PageFly', 'pagefly.io');
+  shopifyApp('gempages', 'GemPages', 'gempages.net', 'gempages.xyz');
+  shopifyApp('shogun', 'Shogun', 'getshogun.com', 'shogun-frontend.com');
+  shopifyApp('replo', 'Replo', 'replo.app');
+  shopifyApp('weglot', 'Weglot', 'weglot.com');
+  shopifyApp('langify', 'Langify', 'langify-app.com');
+  shopifyApp('vitals', 'Vitals', 'vitals.app', 'vitals.co');
+  shopifyApp('boost', 'Boost AI Search & Filter', 'boostcommerce.net', 'bc-solutions.net');
+  shopifyApp('searchanise', 'Searchanise', 'searchanise.com', 'searchserverapi.com');
+  shopifyApp('klevu', 'Klevu', 'klevu.com', 'ksearchnet.com');
+  shopifyApp('swym', 'Swym Wishlist Plus', 'swymrelay.com', 'swym.it');
+  shopifyApp('bold', 'Bold Apps', 'boldapps.net', 'boldcommerce.com');
+  shopifyApp('zipify', 'Zipify', 'zipify.com');
+  shopifyApp('onesignal', 'OneSignal', 'onesignal.com');
+  shopifyApp('pushowl', 'PushOwl', 'pushowl.com');
+  shopifyApp('justuno', 'Justuno', 'justuno.com');
+  shopifyApp('optimonk', 'OptiMonk', 'optimonk.com');
+  shopifyApp('seguno', 'Seguno', 'seguno.com');
+  shopifyApp('junip', 'Junip', 'junip.co');
+  shopifyApp('growave', 'Growave', 'growave.io', 'ssw.app');
+  shopifyApp('loyaltylion', 'LoyaltyLion', 'loyaltylion.net', 'loyaltylion.com');
+  shopifyApp('tapcart', 'Tapcart', 'tapcart.com');
+  shopifyApp('upcart', 'UpCart', 'upcart.app');
+  shopifyApp('reconvert', 'ReConvert', 'reconvert.io', 'stilyoapps.com');
+  shopifyApp('aftersell', 'AfterSell', 'aftersell.app');
+  shopifyApp('wonderment', 'Wonderment', 'wonderment.com');
+  shopifyApp('parcelpanel', 'ParcelPanel', 'parcelpanel.com');
+  shopifyApp('trackingmore', 'TrackingMore', 'trackingmore.com');
+  shopifyApp('17track', '17TRACK', '17track.net');
+  shopifyApp('narvar', 'Narvar', 'narvar.com');
+  shopifyApp('loop', 'Loop Returns & Subscriptions', 'loopreturns.com', 'loopwork.co');
+  shopifyApp('returngo', 'ReturnGO', 'returngo.ai');
+  shopifyApp('skio', 'Skio', 'skio.com');
+  shopifyApp('smartrr', 'Smartrr', 'smartrr.com');
+  shopifyApp('seal', 'Seal Subscriptions', 'sealsubscriptions.com');
+  shopifyApp('appstle', 'Appstle', 'appstle.com');
+  shopifyApp('kiwi', 'Kiwi Size Chart', 'kiwisizing.com');
+  shopifyApp('gtranslate', 'GTranslate', 'gtranslate.net', 'gtranslate.io');
+  shopifyApp('transcy', 'Transcy', 'transcy.io');
+  shopifyApp('instafeed', 'Instafeed', 'instafeed.net', 'mintt.studio');
+  shopifyApp('foursixty', 'Foursixty', 'foursixty.com');
+  shopifyApp('hulk', 'HulkApps', 'hulkapps.com');
+  shopifyApp('globo', 'Globo apps', 'globosoftware.net', 'globo.io');
+  shopifyApp('bss', 'BSS Commerce apps', 'bsscommerce.com');
+  shopifyApp('ecomposer', 'EComposer', 'ecomposer.app', 'ecomposer.io');
+  shopifyApp('layouthub', 'LayoutHub', 'layouthub.com');
+  shopifyApp('pickystory', 'PickyStory', 'pickystory.com');
+  shopifyApp('candyrack', 'Candy Rack', 'candyrack.ds-cdn.com', 'digismoothie.com');
+  shopifyApp('frequently-bought', 'Frequently Bought Together', 'codeblackbelt.com');
+  shopifyApp('limespot', 'LimeSpot', 'limespot.com', 'personalizer.io');
+  shopifyApp('fast-simon', 'Fast Simon', 'fastsimon.com', 'instantsearchplus.com');
+  shopifyApp('tinyimg', 'TinyIMG', 'tiny-img.com');
+  shopifyApp('elevar', 'Elevar', 'getelevar.com');
+  shopifyApp('analyzify', 'Analyzify', 'analyzify.com');
+  shopifyApp('printful', 'Printful', 'printful.com');
+  shopifyApp('printify', 'Printify', 'printify.com');
+  shopifyApp('mechanic', 'Mechanic', 'usemechanic.com');
+  shopifyApp('easylockdown', 'EasyLockdown', 'easylockdown.com');
+  shopifyApp('locksmith', 'Locksmith', 'uselocksmith.com');
+  shopifyApp('geoip-redirect', 'GeoIP Country Redirect', 'geoipredirect.com', 'bspkapps.com');
+  shopifyApp('richpanel', 'Richpanel', 'richpanel.com');
+  shopifyApp('opinew', 'Opinew', 'opinew.com');
+  shopifyApp('ryviu', 'Ryviu', 'ryviu.com', 'ryviu.io');
+  shopifyApp('ali-reviews', 'Ali Reviews', 'alireviews.io', 'fireapps.io');
+  shopifyApp('tabby', 'Tabby', 'tabby.ai');
+  shopifyApp('zip', 'Zip Pay', 'zip.co', 'quadpay.com');
+  shopifyApp('laybuy', 'Laybuy', 'laybuy.com');
+  shopifyApp('dotdigital', 'Dotdigital', 'dotdigital.com', 'dmtrk.net');
+  shopifyApp('shopify-inbox', 'Shopify Inbox', 'shopifychat.shopifyapps.com');
+  shopifyApp('shopify-forms', 'Shopify Forms', 'forms.shopifyapps.com');
+  shopifyApp('shopify-reviews', 'Shopify Product Reviews', 'productreviews.shopifycdn.com');
+  shopifyApp('shopify-collabs', 'Shopify Collabs', 'collabs.shopifyapps.com');
+  shopifyApp('shopify-bundles', 'Shopify Bundles', 'bundles.shopifyapps.com');
+
+  // Hostname signals extend the existing hosting rules.
+  const patch = (id, m) => { const r = RULES.find((x) => x.id === id); for (const [k, v] of Object.entries(m)) r[k] = (r[k] || []).concat(v); };
+  patch('vercel', { pagehost: [/\.vercel\.app$/] });
+  patch('netlify', { pagehost: [/\.netlify\.app$/] });
+  patch('github-pages', { pagehost: [/\.github\.io$/] });
+  patch('render', { pagehost: [/\.onrender\.com$/] });
+  patch('fly', { pagehost: [/\.fly\.dev$/] });
+  patch('heroku', { pagehost: [/\.herokuapp\.com$/] });
+  patch('webflow', { pagehost: [/\.webflow\.io$/] });
+  patch('framer', { pagehost: [/\.framer\.(?:website|app|ai)$/] });
+  patch('wix', { pagehost: [/\.wixsite\.com$/] });
+  patch('squarespace', { pagehost: [/\.squarespace\.com$/] });
+  patch('shopify', { pagehost: [/\.myshopify\.com$/] });
+  patch('wpcom', { pagehost: [/\.wordpress\.com$/] });
 
   const WP_SLUGS = new Map();
   for (const r of RULES) for (const s of r.wpSlug || []) WP_SLUGS.set(s.toLowerCase(), r);
